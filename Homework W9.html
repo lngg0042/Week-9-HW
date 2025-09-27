@@ -2,68 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Airports in Malaysia — Vega-Lite</title>
-  <style>
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      margin: 18px;
-      background: #fafafa;
-      color: #111;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      align-items: center;
-    }
-    header {
-      text-align: center;
-      max-width: 980px;
-      width: 100%;
-    }
-    #vis {
-      /* container for the visualization */
-      max-width: 1000px;
-      width: 100%;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-      border-radius: 6px;
-      overflow: hidden;
-      background: white;
-      padding: 8px;
-    }
-    footer {
-      font-size: 13px;
-      color: #555;
-      max-width: 980px;
-      text-align: center;
-    }
-  </style>
-  <!-- Vega scripts from CDN -->
+  <!-- Vega & Vega-Lite & embed -->
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; margin: 16px; background: #fafafa; display: flex; flex-direction: column; align-items: center; }
+    h1 { font-size: 20px; margin-bottom: 8px; text-align: center; }
+    #vis { width: 100%; max-width: 900px; margin: 0 auto; }
+    .note { max-width: 900px; margin: 8px auto; font-size: 13px; color: #444; text-align: center; }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Airports in Malaysia</h1>
-    <p style="margin-top: -8px; color: #444;">Interactive map of Malaysian airports </p>
-  </header>
-
-  <main id="vis">
-    <!-- Vega embed will render inside this div -->
-  </main>
-
+  <h1>Airports in Malaysia</h1>
+  <div id="vis"></div>
 
   <script>
-    // Your Vega-Lite spec as JSON. We parse it so we can paste raw JSON safely.
-    const spec = JSON.parse(`{
+    const spec = {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   "width": 800,
   "height": 450,
-  "title": {
-    "text": "Airports in Malaysia",
-    "fontSize": 20,
-    "font": "Arial"
-  },
   "projection": {"type": "equalEarth"},
   "layer": [
     {
@@ -101,13 +61,6 @@
         {"filter": "datum.type != '#loc +airport +type'"}
       ],
       "mark": "circle",
-      "params": [
-        {
-          "name": "airportType",
-          "select": {"type": "point", "fields": ["type"]},
-          "bind": "legend"
-        }
-      ],
       "encoding": {
         "longitude": {"field": "longitude_deg", "type": "quantitative"},
         "latitude": {"field": "latitude_deg", "type": "quantitative"},
@@ -122,49 +75,23 @@
             "symbolSize": 100,
             "labelExpr": "datum.label == 'closed' ? 'Closed' : datum.label == 'large_airport' ? 'Large Airport' : datum.label == 'medium_airport' ? 'Medium Airport' : datum.label == 'small_airport' ? 'Small Airport' : datum.label == 'heliport' ? 'Heliport' : datum.label"
           }
-        },
-        "opacity": {
-          "condition": {"param": "airportType", "value": 1},
-          "value": 0.2
-        },
-        "tooltip": [
-          {"field": "name", "type": "nominal", "title": "Airport"},
-          {"field": "municipality", "type": "nominal", "title": "City"},
-          {"field": "iso_country", "type": "nominal", "title": "Country"},
-          {"field": "type", "type": "nominal", "title": "Type"}
-        ]
+        }
       }
     }
   ],
-  "config": {
+   "config": {
     "view": {
       "stroke": "black",
       "strokeWidth": 2
     }
   }
-}`);
+};
 
-    // Embedding with a couple of useful options (export/source buttons enabled)
-    const embedOptions = {
-      renderer: "canvas",
-      actions: {
-        export: true,
-        source: true,
-        compiled: false,
-        editor: false
-      },
-      // If you want a slightly responsive embed, allow resizable container
-      scale: 1
-    };
-
-    // Render
-    vegaEmbed('#vis', spec, embedOptions).then(result => {
-      // result.view is the Vega View instance
-      console.log('Vega-Lite chart rendered', result);
-    }).catch(err => {
-      console.error('Error embedding Vega-Lite spec:', err);
-      const el = document.querySelector('#vis');
-      el.innerHTML = '<div style="padding:20px;color:#900;font-weight:600">Failed to load visualization — see console for details.</div>';
+    // embed the visualization
+    vegaEmbed('#vis', spec, {actions: true, defaultStyle: true}).catch(err => {
+      console.error(err);
+      const el = document.getElementById('vis');
+      el.innerHTML = '<p style="color:crimson">Failed to render visualization — see console for details.</p>';
     });
   </script>
 </body>
